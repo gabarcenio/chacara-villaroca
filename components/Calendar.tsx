@@ -13,7 +13,7 @@ import {
   toVenueDateKey,
 } from "@/lib/date";
 
-type CalendarState = "available" | "pending" | "booked" | "blocked";
+type CalendarState = "available" | "pending" | "confirmed" | "blocked";
 
 type CalendarDay = {
   key: string;
@@ -24,37 +24,38 @@ type CalendarDay = {
 
 type CalendarProps = {
   pendingDateKeys: Set<string>;
+  confirmedDateKeys: Set<string>;
+  blockedDateKeys: Set<string>;
   selectedDateKeys: Set<string>;
   onToggleDate: (date: Date) => void;
+  loading?: boolean;
 };
 
 const weekDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-const seededBookedDates = new Set(["2026-05-09", "2026-05-23"]);
 
-function generateCalendarDays(year: number, month: number, pendingDateKeys: Set<string>) {
+function generateCalendarDays(
+  year: number,
+  month: number,
+  pendingDateKeys: Set<string>,
+  confirmedDateKeys: Set<string>,
+  blockedDateKeys: Set<string>,
+) {
   const firstDay = makeVenueDate(year, month, 1);
   const startingDayOfWeek = getVenueDayOfWeek(firstDay);
   const daysInMonth = getDaysInMonth(firstDay);
   const days: Array<CalendarDay | null> = [];
 
-  for (let index = 0; index < startingDayOfWeek; index += 1) {
-    days.push(null);
-  }
+  for (let i = 0; i < startingDayOfWeek; i++) days.push(null);
 
-  for (let day = 1; day <= daysInMonth; day += 1) {
+  for (let day = 1; day <= daysInMonth; day++) {
     const date = makeVenueDate(year, month, day);
     const key = toVenueDateKey(date);
     const isPast = isPastVenueDate(date);
 
     let state: CalendarState = "available";
-
-    if (isPast) {
-      state = "blocked";
-    } else if (seededBookedDates.has(key)) {
-      state = "booked";
-    } else if (pendingDateKeys.has(key)) {
-      state = "pending";
-    }
+    if (isPast || blockedDateKeys.has(key)) state = "blocked";
+    else if (confirmedDateKeys.has(key)) state = "confirmed";
+    else if (pendingDateKeys.has(key)) state = "pending";
 
     days.push({ key, date, dayNumber: day, state });
   }
@@ -62,28 +63,28 @@ function generateCalendarDays(year: number, month: number, pendingDateKeys: Set<
   return days;
 }
 
-export function Calendar({ pendingDateKeys, selectedDateKeys, onToggleDate }: CalendarProps) {
+export function Calendar({
+  pendingDateKeys,
+  confirmedDateKeys,
+  blockedDateKeys,
+  selectedDateKeys,
+  onToggleDate,
+  loading = false,
+}: CalendarProps) {
   const today = nowInVenueTimeZone();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
-  const days = generateCalendarDays(currentYear, currentMonth, pendingDateKeys);
+
+  const days = generateCalendarDays(currentYear, currentMonth, pendingDateKeys, confirmedDateKeys, blockedDateKeys);
 
   const handlePrevMonth = () => {
-    if (currentMonth === 0) {
-      setCurrentMonth(11);
-      setCurrentYear(currentYear - 1);
-      return;
-    }
-    setCurrentMonth(currentMonth - 1);
+    if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(currentYear - 1); }
+    else setCurrentMonth(currentMonth - 1);
   };
 
   const handleNextMonth = () => {
-    if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear(currentYear + 1);
-      return;
-    }
-    setCurrentMonth(currentMonth + 1);
+    if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(currentYear + 1); }
+    else setCurrentMonth(currentMonth + 1);
   };
 
   return (
@@ -108,9 +109,7 @@ export function Calendar({ pendingDateKeys, selectedDateKeys, onToggleDate }: Ca
             >
               <ChevronLeft size={22} aria-hidden="true" />
             </button>
-
             <h3 className="text-xl capitalize text-white">{formatVenueMonthLabel(currentYear, currentMonth)}</h3>
-
             <button
               onClick={handleNextMonth}
               className="rounded-lg p-2 text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
@@ -122,17 +121,13 @@ export function Calendar({ pendingDateKeys, selectedDateKeys, onToggleDate }: Ca
 
           <div className="mb-3 grid grid-cols-7 gap-1.5 md:gap-2">
             {weekDays.map((day) => (
-              <div key={day} className="py-2 text-center text-xs text-white/58 md:text-sm">
-                {day}
-              </div>
+              <div key={day} className="py-2 text-center text-xs text-white/58 md:text-sm">{day}</div>
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-1.5 md:gap-2">
+          <div className={`grid grid-cols-7 gap-1.5 transition-opacity md:gap-2 ${loading ? "opacity-40" : ""}`}>
             {days.map((day, index) => {
-              if (!day) {
-                return <div key={`empty-${index}`} className="aspect-square" />;
-              }
+              if (!day) return <div key={`empty-${index}`} className="aspect-square" />;
 
               const isSelectable = day.state === "available";
               const isSelected = selectedDateKeys.has(day.key);
@@ -146,10 +141,10 @@ export function Calendar({ pendingDateKeys, selectedDateKeys, onToggleDate }: Ca
                   aria-pressed={isSelected}
                   className={[
                     "relative flex aspect-square items-center justify-center rounded-lg text-sm transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent",
-                    isSelected ? "bg-accent text-primary font-semibold" : "text-white",
+                    isSelected ? "bg-accent font-semibold text-primary" : "text-white",
                     day.state === "available" && !isSelected ? "bg-white/[0.07] hover:bg-accent/20" : "",
                     day.state === "pending" ? "cursor-not-allowed border border-accent/60 text-white/60" : "",
-                    day.state === "booked" ? "cursor-not-allowed bg-white/[0.02] text-white/35 line-through" : "",
+                    day.state === "confirmed" ? "cursor-not-allowed bg-white/[0.02] text-white/35 line-through" : "",
                     day.state === "blocked" ? "cursor-not-allowed text-white/25" : "",
                   ].join(" ")}
                 >
@@ -158,7 +153,7 @@ export function Calendar({ pendingDateKeys, selectedDateKeys, onToggleDate }: Ca
                     <span className="absolute bottom-1.5 h-1.5 w-1.5 rounded-full bg-accent" />
                   ) : null}
                   {day.state === "pending" ? (
-                    <span className="absolute bottom-1.5 h-1.5 w-1.5 rounded-full border border-accent" />
+                    <span className="absolute bottom-1.5 h-1.5 w-1.5 rounded-full border border-accent/80" />
                   ) : null}
                 </button>
               );
@@ -167,8 +162,9 @@ export function Calendar({ pendingDateKeys, selectedDateKeys, onToggleDate }: Ca
 
           <div className="mt-6 flex flex-wrap gap-4 border-t border-white/15 pt-6 text-sm text-white/70">
             <LegendDot className="bg-accent" label="Disponível" />
-            <LegendDot className="border border-accent" label="Em análise" />
+            <LegendDot className="border border-accent/60" label="Em análise" />
             <LegendDot className="bg-white/20" label="Reservado" />
+            <LegendDot className="bg-white/10" label="Bloqueado" />
           </div>
 
           <p className="mt-5 text-sm text-white/55">
@@ -192,6 +188,6 @@ function LegendDot({ className, label }: { className: string; label: string }) {
 const stateLabels: Record<CalendarState, string> = {
   available: "disponível",
   pending: "em análise",
-  booked: "reservado",
+  confirmed: "reservado",
   blocked: "indisponível",
 };

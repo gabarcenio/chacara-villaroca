@@ -11,6 +11,7 @@
     "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.104.0",
     "@tailwindcss/postcss": "4.1.12",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",

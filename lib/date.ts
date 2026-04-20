@@ -1,3 +1,4 @@
+import { getDaysInMonth } from "date-fns";
 import { formatInTimeZone, fromZonedTime, toZonedTime } from "date-fns-tz";
 import { VENUE } from "@/lib/constants";
 
@@ -60,4 +61,8 @@ export function isPastVenueDate(date: Date) {
   const dateKey = toVenueDateKey(date);
 
   return dateKey < todayKey;
+}
+
+export function getDaysInMonthUtil(year: number, monthIndex: number) {
+  return getDaysInMonth(makeVenueDate(year, monthIndex, 1));
 }

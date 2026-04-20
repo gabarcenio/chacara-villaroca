@@ -1,14 +1,27 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { Calendar } from "@/components/Calendar";
 import { Confirmation } from "@/components/Confirmation";
 import { Hero } from "@/components/Hero";
 import { QuoteForm } from "@/components/QuoteForm";
-import { listPendingQuoteDateKeys, saveStoredQuote } from "@/lib/quote-storage";
-import { createQuoteRequest, type QuoteDraft } from "@/lib/quotes";
+import type { QuoteDraft } from "@/lib/quotes";
 import { toVenueDateKey } from "@/lib/date";
+
+type CalendarData = {
+  pending: string[];
+  confirmed: string[];
+  blocked: string[];
+};
+
+type BookingSummary = {
+  name: string;
+  eventType: string;
+  guestCount: number;
+  dateKeys: string[];
+  phone: string;
+};
 
 type BookingExperienceProps = {
   hero?: boolean;
@@ -18,18 +31,30 @@ type BookingExperienceProps = {
 export function BookingExperience({ hero = true, children }: BookingExperienceProps) {
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [pendingDateKeys, setPendingDateKeys] = useState<Set<string>>(() => new Set());
+  const [lastBooking, setLastBooking] = useState<BookingSummary | null>(null);
+  const [calendarData, setCalendarData] = useState<CalendarData>({ pending: [], confirmed: [], blocked: [] });
+  const [calendarLoading, setCalendarLoading] = useState(true);
   const calendarRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setPendingDateKeys(listPendingQuoteDateKeys());
+  const fetchCalendar = useCallback(async () => {
+    try {
+      const res = await fetch("/api/calendar");
+      if (res.ok) setCalendarData(await res.json());
+    } finally {
+      setCalendarLoading(false);
+    }
   }, []);
+
+  useEffect(() => { fetchCalendar(); }, [fetchCalendar]);
 
   const selectedDateKeys = useMemo(
     () => new Set(selectedDates.map(toVenueDateKey)),
     [selectedDates],
   );
+
+  const pendingDateKeys = useMemo(() => new Set(calendarData.pending), [calendarData.pending]);
+  const confirmedDateKeys = useMemo(() => new Set(calendarData.confirmed), [calendarData.confirmed]);
+  const blockedDateKeys = useMemo(() => new Set(calendarData.blocked), [calendarData.blocked]);
 
   const handleScrollToCalendar = () => {
     calendarRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -44,13 +69,37 @@ export function BookingExperience({ hero = true, children }: BookingExperiencePr
     });
   };
 
-  const handleSubmitQuote = (draft: QuoteDraft) => {
-    const quote = createQuoteRequest(draft);
-    saveStoredQuote(quote);
-    setPendingDateKeys(listPendingQuoteDateKeys());
+  const handleSubmitQuote = async (draft: QuoteDraft) => {
+    const res = await fetch("/api/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        dateKeys: draft.dateKeys,
+        eventType: draft.eventType,
+        guestCount: draft.guestCount,
+        services: draft.services,
+        name: draft.name,
+        email: draft.email,
+        phone: draft.phone,
+        message: draft.message,
+        marketingOptIn: draft.marketingOptIn,
+        startTime: draft.startTime,
+        endTime: draft.endTime,
+      }),
+    });
+
+    if (!res.ok) return;
+
+    setLastBooking({
+      name: draft.name,
+      eventType: draft.eventType,
+      guestCount: draft.guestCount,
+      dateKeys: draft.dateKeys,
+      phone: draft.phone,
+    });
     setSelectedDates([]);
     setShowForm(false);
-    setShowConfirmation(true);
+    await fetchCalendar();
   };
 
   return (
@@ -62,8 +111,11 @@ export function BookingExperience({ hero = true, children }: BookingExperiencePr
       <div ref={calendarRef}>
         <Calendar
           pendingDateKeys={pendingDateKeys}
+          confirmedDateKeys={confirmedDateKeys}
+          blockedDateKeys={blockedDateKeys}
           selectedDateKeys={selectedDateKeys}
           onToggleDate={handleToggleDate}
+          loading={calendarLoading}
         />
       </div>
 
@@ -97,7 +149,10 @@ export function BookingExperience({ hero = true, children }: BookingExperiencePr
           onSubmit={handleSubmitQuote}
         />
       ) : null}
-      {showConfirmation ? <Confirmation onClose={() => setShowConfirmation(false)} /> : null}
+
+      {lastBooking ? (
+        <Confirmation booking={lastBooking} onClose={() => setLastBooking(null)} />
+      ) : null}
     </>
   );
 }
