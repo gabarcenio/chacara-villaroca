@@ -2,9 +2,9 @@ import { Resend } from "resend";
 import { formatVenueDateLong, parseVenueDateKey } from "@/lib/date";
 import { VENUE } from "@/lib/constants";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const getResend = () => new Resend(process.env.RESEND_API_KEY);
 const FROM = "VillaRoça <onboarding@resend.dev>";
-const OWNER_EMAIL = process.env.OWNER_EMAIL!;
+const OWNER_EMAIL = process.env.OWNER_EMAIL ?? "";
 const LOGO_URL = "https://raw.githubusercontent.com/gabarcenio/chacara-villaroca/main/public/logo.png";
 
 // ─── Brand tokens ───────────────────────────────────────────────────────────
@@ -31,6 +31,19 @@ type BookingInfo = {
   dateKeys: string[];
   services: string[];
   message: string;
+  priceBrl?: number | null;
+  installments?: number;
+};
+
+type ContractEmailInfo = {
+  bookingId: string;
+  clientName: string;
+  clientEmail: string;
+  eventType: string;
+  dateKeys: string[];
+  priceBrl: number;
+  installments: number;
+  contractHtml: string;
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -138,9 +151,6 @@ function ctaButton(href: string, label: string, bg: string = C.charcoal, fg: str
   </table>`;
 }
 
-function divider() {
-  return `<tr><td style="padding:24px 0;"><div style="border-top:1px solid ${C.border};font-size:0;line-height:0;">&nbsp;</div></td></tr>`;
-}
 
 function highlightBox(content: string) {
   return `
@@ -178,7 +188,7 @@ export async function sendNewBookingNotification(booking: BookingInfo) {
     ${ctaButton("https://chacaravillaroca.com.br/admin", "Abrir painel admin →")}
   `;
 
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to: [OWNER_EMAIL],
     subject: `Nova solicitação — ${booking.eventType} · ${firstName(booking.name)}`,
@@ -215,7 +225,7 @@ export async function sendBookingDeclined(booking: BookingInfo) {
     </p>
   `;
 
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to: [booking.email],
     subject: "Sua solicitação na Chácara VillaRoça",
@@ -227,15 +237,20 @@ export async function sendBookingDeclined(booking: BookingInfo) {
 
 export async function sendBookingConfirmed(booking: BookingInfo) {
   const dates = formatDates(booking.dateKeys);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://chacaravillaroca.com.br";
+  const contractLink = `${siteUrl}/contrato/${booking.id}`;
 
-  const contractFields = [
-    "Nome completo",
-    "CPF",
-    "RG e órgão expedidor",
-    "Data de nascimento",
-    "Endereço completo (rua, número, bairro)",
-    "CEP · Cidade · Estado",
-  ];
+  const priceBlock = booking.priceBrl
+    ? highlightBox(`
+      <p style="margin:0 0 4px;font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;color:${C.lightText};">Valor total da locação</p>
+      <p style="margin:0 0 2px;font-family:Arial,Helvetica,sans-serif;font-size:22px;color:${C.charcoal};font-weight:bold;">
+        ${booking.priceBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 0 })}
+      </p>
+      <p style="margin:4px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:${C.muted};">
+        em ${booking.installments ?? 2}x · entrada de 30% na assinatura do contrato
+      </p>
+    `)
+    : "";
 
   const body = `
     <p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${C.green};">Reserva confirmada</p>
@@ -251,45 +266,56 @@ export async function sendBookingConfirmed(booking: BookingInfo) {
       <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:${C.muted};">${booking.eventType} &nbsp;·&nbsp; ${booking.guestCount} convidados</p>
     `)}
 
+    ${priceBlock}
+
     <p style="margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:${C.charcoal};">Próximo passo — dados para o contrato</p>
-    <p style="margin:0 0 20px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:${C.muted};line-height:1.7;">
-      Para elaborarmos o contrato de locação, responda este e-mail ou envie os dados abaixo pelo WhatsApp:
+    <p style="margin:0 0 24px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:${C.muted};line-height:1.7;">
+      Para gerarmos o contrato de locação, clique no botão abaixo e preencha seus dados pessoais. O contrato será enviado automaticamente para assinatura.
     </p>
 
-    <!-- Checklist -->
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${C.offwhite};border-radius:8px;margin:0 0 32px;">
-      <tr><td style="padding:20px 24px;">
-        ${contractFields.map((field, i) => `
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="${i < contractFields.length - 1 ? `border-bottom:1px solid ${C.border};` : ""}">
-            <tr>
-              <td width="24" valign="middle" style="padding:10px 0;">
-                <div style="width:18px;height:18px;border:2px solid ${C.border};border-radius:4px;font-size:0;">&nbsp;</div>
-              </td>
-              <td valign="middle" style="padding:10px 0 10px 10px;">
-                <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:${C.charcoal};">${field}</p>
-              </td>
-            </tr>
-          </table>`).join("")}
-      </td></tr>
-    </table>
+    ${ctaButton(contractLink, "Preencher dados do contrato →", C.charcoal, C.yellow)}
 
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-      <tr>
-        <td style="padding-right:12px;">
-          ${ctaButton(`https://wa.me/${VENUE.whatsapp[0]}`, "Enviar pelo WhatsApp", C.charcoal, C.yellow)}
-        </td>
-      </tr>
-    </table>
-
-    <p style="margin:32px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:${C.lightText};line-height:1.6;">
-      Qualquer dúvida, estamos à disposição. Até o grande dia!
+    <p style="margin:28px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:${C.lightText};line-height:1.6;">
+      Qualquer dúvida, estamos à disposição pelo WhatsApp. Até o grande dia!
     </p>
   `;
 
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to: [booking.email],
     subject: `Reserva confirmada — ${dates} · VillaRoça`,
     html: shell(`Sua reserva para ${dates} está confirmada.`, body),
+  });
+}
+
+// ─── 4. Client — contract for signing (fallback when D4Sign not configured) ──
+
+export async function sendContractForSigning(info: ContractEmailInfo) {
+  const dates = formatDates(info.dateKeys);
+
+  const body = `
+    <p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:${C.charcoal};">Contrato de locação</p>
+    <h1 style="margin:0 0 24px;font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:normal;color:${C.charcoal};line-height:1.3;">Olá, ${firstName(info.clientName)}!</h1>
+
+    <p style="margin:0 0 24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;color:${C.muted};line-height:1.7;">
+      Segue em anexo o contrato de locação da <strong style="color:${C.charcoal};">Chácara VillaRoça</strong> para o evento em <strong>${dates}</strong>. Assine, digitalize e responda este e-mail.
+    </p>
+
+    <p style="margin:32px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:${C.lightText};line-height:1.6;">
+      Em caso de dúvidas, entre em contato pelo WhatsApp.
+    </p>
+  `;
+
+  return getResend().emails.send({
+    from: FROM,
+    to: [info.clientEmail, OWNER_EMAIL],
+    subject: `Contrato de locação — ${dates} · VillaRoça`,
+    html: shell(`Contrato de locação para ${dates}.`, body),
+    attachments: [
+      {
+        filename: `contrato-villaroca-${info.bookingId.slice(0, 8)}.html`,
+        content: Buffer.from(info.contractHtml).toString("base64"),
+      },
+    ],
   });
 }

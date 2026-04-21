@@ -36,3 +36,16 @@ export const BRAND = {
     red: "#C8102E",
   },
 } as const;
+
+// Indicative price ranges per event type (in BRL, per booking — not per day)
+export const PRICING: Record<string, { min: number; max: number; suggested: number }> = {
+  "Casamento":          { min: 4000, max: 7000, suggested: 5500 },
+  "Aniversário":        { min: 2500, max: 4500, suggested: 3200 },
+  "Confraternização":   { min: 2000, max: 4000, suggested: 2800 },
+  "Corporativo":        { min: 3000, max: 5500, suggested: 4000 },
+  "Retiro familiar":    { min: 2000, max: 3500, suggested: 2500 },
+  "Outro":              { min: 2000, max: 5000, suggested: 3000 },
+};
+
+// Auto-approval is skipped for now — all bookings go through manual admin review
+export const AUTO_APPROVE_EVENT_TYPES: string[] = [];

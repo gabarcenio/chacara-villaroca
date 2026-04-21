@@ -9,7 +9,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   }
 
   const { id } = await params;
-  const { status } = await request.json();
+  const { status, priceBrl, installments } = await request.json();
 
   if (!["confirmed", "declined", "pending"].includes(status)) {
     return NextResponse.json({ error: "Status inválido" }, { status: 400 });
@@ -17,7 +17,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   const supabase = createAdminClient();
 
-  // Fetch full booking so we can send the right email
   const { data: booking, error: fetchError } = await supabase
     .from("bookings")
     .select("*")
@@ -28,13 +27,18 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     return NextResponse.json({ error: fetchError.message }, { status: 500 });
   }
 
-  const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
+  const updatePayload: Record<string, unknown> = { status };
+  if (status === "confirmed" && priceBrl) {
+    updatePayload.price_brl = priceBrl;
+    updatePayload.installments = installments ?? 2;
+  }
+
+  const { error } = await supabase.from("bookings").update(updatePayload).eq("id", id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Send email based on new status
   const info = {
     id: booking.id,
     name: booking.name,
@@ -45,6 +49,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     dateKeys: booking.date_keys,
     services: booking.services ?? [],
     message: booking.message ?? "",
+    priceBrl: status === "confirmed" ? (priceBrl ?? null) : null,
+    installments: installments ?? 2,
   };
 
   if (status === "confirmed") {

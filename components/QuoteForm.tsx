@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { createDraftFromDates, type QuoteDraft, validateQuoteDraft } from "@/lib/quotes";
 import { formatVenueDateLong } from "@/lib/date";
+import { getPriceRange, formatBRL } from "@/lib/pricing";
 
 type QuoteFormProps = {
   selectedDates: Date[];
@@ -36,6 +37,11 @@ export function QuoteForm({ selectedDates, onClose, onSubmit }: QuoteFormProps) 
   const datesLabel = selectedDates.length === 1
     ? formatVenueDateLong(selectedDates[0])
     : `${selectedDates.length} datas selecionadas`;
+
+  const priceEstimate = useMemo(
+    () => getPriceRange(formData.eventType, selectedDates.length),
+    [formData.eventType, selectedDates.length],
+  );
 
   const validateStep = (currentStep: number) => {
     const nextErrors = validateQuoteDraft(formData);
@@ -137,6 +143,18 @@ export function QuoteForm({ selectedDates, onClose, onSubmit }: QuoteFormProps) 
                   ))}
                 </div>
               </Field>
+
+              {priceEstimate ? (
+                <div className="rounded-lg border border-accent/40 bg-accent/10 px-4 py-3 text-sm">
+                  <p className="mb-0.5 text-xs font-semibold uppercase tracking-wide text-primary/50">Preço estimado</p>
+                  <p className="text-base font-semibold text-primary">
+                    {formatBRL(priceEstimate.min)} – {formatBRL(priceEstimate.max)}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    Entrada de 30% para confirmar · valor final definido pelo proprietário
+                  </p>
+                </div>
+              ) : null}
 
               <Field label="Número de convidados" error={errors.guestCount}>
                 <input
