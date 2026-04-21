@@ -269,7 +269,7 @@ ${dataCard}
   return getResend().emails.send({
     from: FROM,
     to: [OWNER_EMAIL],
-    subject: `Nova solicita&#231;&#227;o &#8212; ${booking.eventType} &middot; ${firstName(booking.name)}`,
+    subject: `Nova solicitação — ${booking.eventType} · ${firstName(booking.name)}`,
     html: shell(`${firstName(booking.name)} solicitou uma reserva.`, body),
   });
 }
@@ -304,8 +304,8 @@ ${signoff("Agradecemos o seu interesse.")}`;
   return getResend().emails.send({
     from: FROM,
     to: [booking.email],
-    subject: "Sua solicita&#231;&#227;o na Ch&#225;cara VillaRo&#231;a",
-    html: shell("Temos um retorno sobre a sua solicita&#231;&#227;o de reserva.", body),
+    subject: "Sua solicitação na Chácara VillaRoça",
+    html: shell("Temos um retorno sobre a sua solicitação de reserva.", body),
   });
 }
 
@@ -363,8 +363,8 @@ ${signoff("Qualquer d&#250;vida, estamos &#224; disposi&#231;&#227;o pelo WhatsA
   return getResend().emails.send({
     from: FROM,
     to: [booking.email],
-    subject: `Reserva confirmada &#8212; ${dates} &middot; VillaRo&#231;a`,
-    html: shell(`Sua reserva para ${dates} est&#225; confirmada.`, body),
+    subject: `Reserva confirmada — ${dates} · VillaRoça`,
+    html: shell(`Sua reserva para ${dates} está confirmada.`, body),
   });
 }
 
@@ -381,8 +381,8 @@ ${lede(`Segue em anexo o contrato de loca&#231;&#227;o da Ch&#225;cara VillaRo&#
   return getResend().emails.send({
     from: FROM,
     to: [info.clientEmail, OWNER_EMAIL],
-    subject: `Contrato de loca&#231;&#227;o &#8212; ${dates} &middot; VillaRo&#231;a`,
-    html: shell(`Contrato de loca&#231;&#227;o para ${dates}.`, body),
+    subject: `Contrato de locação — ${dates} · VillaRoça`,
+    html: shell(`Contrato de locação para ${dates}.`, body),
     attachments: [
       {
         filename: `contrato-villaroca-${info.bookingId.slice(0, 8)}.html`,
