@@ -5,6 +5,7 @@ import { VENUE } from "@/lib/constants";
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = "VillaRoça <onboarding@resend.dev>";
 const OWNER_EMAIL = process.env.OWNER_EMAIL!;
+const LOGO_URL = "https://raw.githubusercontent.com/gabarcenio/chacara-villaroca/main/public/logo.png";
 
 // ─── Brand tokens ───────────────────────────────────────────────────────────
 const C = {
@@ -72,15 +73,15 @@ function shell(preheader: string, body: string) {
 
         <!-- Logo header -->
         <tr>
-          <td style="background-color:${C.charcoal};padding:28px 40px 24px;">
+          <td style="background-color:${C.charcoal};padding:24px 40px 20px;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
               <tr>
-                <td>
-                  <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:normal;color:${C.white};letter-spacing:0.5px;">VillaRoça</p>
-                  <p style="margin:4px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#ffffff80;letter-spacing:2.5px;text-transform:uppercase;">Chácara para Eventos</p>
+                <td valign="middle">
+                  <img src="${LOGO_URL}" width="160" height="35" alt="VillaRoça" style="display:block;border:0;outline:none;text-decoration:none;"/>
+                  <p style="margin:4px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#ffffff50;letter-spacing:2.5px;text-transform:uppercase;">Chácara para Eventos</p>
                 </td>
                 <td align="right" valign="middle">
-                  <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#ffffff40;letter-spacing:1px;">Barretos · SP</p>
+                  <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#ffffff30;letter-spacing:1px;">Barretos · SP</p>
                 </td>
               </tr>
             </table>
