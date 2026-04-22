@@ -17,11 +17,11 @@ export default function ContactPage() {
       <SiteHeader dark={false} />
 
       {/* ── Heading section ── */}
-      <section style={{ padding: "80px 48px 56px" }}>
+      <section className="px-5 pt-12 pb-10 md:px-10 md:pt-20 md:pb-14">
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: MUTED, letterSpacing: "2.5px", textTransform: "uppercase", marginBottom: 18 }}>
           Contato
         </div>
-        <h1 style={{ fontFamily: "var(--font-fraunces)", fontSize: 56, fontWeight: 280, lineHeight: 1.04, letterSpacing: "-0.9px", margin: "0 0 24px", color: INK, fontVariationSettings: '"opsz" 144' }}>
+        <h1 style={{ fontFamily: "var(--font-fraunces)", fontSize: "clamp(30px, 6vw, 56px)", fontWeight: 280, lineHeight: 1.04, letterSpacing: "-0.9px", margin: "0 0 24px", color: INK, fontVariationSettings: '"opsz" 144' }}>
           Vamos conversar<br />sobre a sua data.
         </h1>
         <p style={{ margin: 0, fontSize: 16, lineHeight: 1.6, color: MUTED2, maxWidth: 560, fontWeight: 300 }}>
@@ -31,14 +31,14 @@ export default function ContactPage() {
       </section>
 
       {/* ── Contact cards ── */}
-      <section style={{ padding: "0 48px 56px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <section className="px-5 pb-10 md:px-10 md:pb-14 grid grid-cols-1 md:grid-cols-2 gap-4">
 
         {/* WhatsApp card */}
         <a
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
-          style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", gap: 20, padding: "28px 28px 24px", background: PAPER, border: `1px solid ${LINE}`, minHeight: 220 }}
+          style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", gap: 20, padding: "28px 28px 24px", background: PAPER, border: `1px solid ${LINE}`, minHeight: 200 }}
         >
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -64,7 +64,7 @@ export default function ContactPage() {
           href={instagramUrl}
           target="_blank"
           rel="noopener noreferrer"
-          style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", gap: 20, padding: "28px 28px 24px", background: INK, minHeight: 220 }}
+          style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", gap: 20, padding: "28px 28px 24px", background: INK, minHeight: 200 }}
         >
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "rgba(250,248,244,0.55)", letterSpacing: "2px", textTransform: "uppercase" }}>Feed</span>
@@ -84,7 +84,10 @@ export default function ContactPage() {
       </section>
 
       {/* ── Footer info row ── */}
-      <section style={{ margin: "0 48px", paddingTop: 24, paddingBottom: 64, borderTop: `1px solid ${LINE}`, display: "flex", gap: 48, fontSize: 13, color: MUTED2, flexWrap: "wrap" }}>
+      <section
+        className="mx-5 pt-6 pb-16 md:mx-10 flex flex-wrap gap-8 text-sm"
+        style={{ borderTop: `1px solid ${LINE}`, color: MUTED2 }}
+      >
         <div>
           <span style={{ color: MUTED, letterSpacing: "1.5px", textTransform: "uppercase", fontSize: 10, fontFamily: "var(--font-mono)", marginRight: 12 }}>E-mail</span>
           reservas@villaroca.com.br

@@ -6,15 +6,16 @@ import { usePathname } from "next/navigation";
 import varanda from "@/src/imports/varanda.jpg";
 import { VENUE } from "@/lib/constants";
 
-const INK    = "#0c0a08";
-const PAPER  = "#faf8f4";
-const MUTED  = "rgba(250,248,244,0.55)";
+const INK   = "#0c0a08";
+const PAPER = "#faf8f4";
+const MUTED = "rgba(250,248,244,0.55)";
 
 const navItems = [
-  { href: "/", label: "Início" },
-  { href: "/disponibilidade", label: "Disponibilidade" },
-  { href: "/condicoes", label: "Condições" },
-  { href: "/contato", label: "Contato" },
+  { href: "/",               label: "Início",          mobileHide: true },
+  { href: "/disponibilidade",label: "Disponibilidade", mobileHide: false },
+  { href: "/condicoes",      label: "Condições",       mobileHide: true },
+  { href: "/espaco",         label: "O Espaço",        mobileHide: true },
+  { href: "/contato",        label: "Contato",         mobileHide: false },
 ];
 
 type HeroProps = {
@@ -27,14 +28,7 @@ export function Hero({ onScrollToCalendar }: HeroProps) {
   return (
     <section style={{ background: INK, color: PAPER, fontFamily: "var(--font-inter)" }}>
       {/* ── Nav ── */}
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "28px 48px",
-        }}
-      >
+      <header className="flex items-center justify-between px-5 py-5 md:px-10 md:py-7">
         <Link
           href="/"
           style={{
@@ -50,13 +44,15 @@ export function Hero({ onScrollToCalendar }: HeroProps) {
         >
           VillaRoça
         </Link>
-        <nav style={{ display: "flex", gap: 32, alignItems: "center" }}>
+
+        <nav className="flex items-center gap-5 md:gap-8">
           {navItems.map((item) => {
             const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                className={item.mobileHide ? "hidden md:inline-block" : ""}
                 style={{
                   fontSize: 12,
                   fontWeight: 500,
@@ -75,7 +71,7 @@ export function Hero({ onScrollToCalendar }: HeroProps) {
       </header>
 
       {/* ── Full-bleed hero image ── */}
-      <section style={{ position: "relative", height: 520, overflow: "hidden" }}>
+      <section className="relative overflow-hidden h-[260px] sm:h-[360px] md:h-[460px] lg:h-[520px]">
         <Image
           src={varanda}
           alt="Vista da área externa da Chácara VillaRoça"
@@ -91,7 +87,7 @@ export function Hero({ onScrollToCalendar }: HeroProps) {
               "linear-gradient(to top, rgba(12,10,8,0.78) 0%, rgba(12,10,8,0.15) 55%, transparent 100%)",
           }}
         />
-        <div style={{ position: "absolute", left: 48, bottom: 40, right: 48 }}>
+        <div className="absolute left-5 bottom-6 right-5 md:left-10 md:bottom-10 md:right-10">
           <div
             style={{
               fontFamily: "var(--font-mono)",
@@ -107,7 +103,7 @@ export function Hero({ onScrollToCalendar }: HeroProps) {
           <h1
             style={{
               fontFamily: "var(--font-fraunces)",
-              fontSize: 56,
+              fontSize: "clamp(30px, 7vw, 56px)",
               fontWeight: 280,
               lineHeight: 1.04,
               letterSpacing: "-0.9px",
@@ -125,14 +121,7 @@ export function Hero({ onScrollToCalendar }: HeroProps) {
       </section>
 
       {/* ── Two-column intro ── */}
-      <section
-        style={{
-          padding: "48px 48px 32px",
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 64,
-        }}
-      >
+      <section className="px-5 py-8 md:px-10 md:py-12 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-16">
         <p
           style={{
             margin: 0,
@@ -184,14 +173,9 @@ export function Hero({ onScrollToCalendar }: HeroProps) {
 
       {/* ── Address bar ── */}
       <section
+        className="mx-5 md:mx-10 py-5 md:py-6 flex items-center gap-2.5 text-sm"
         style={{
-          margin: "0 48px 0",
-          padding: "20px 0 32px",
           borderTop: "1px solid rgba(250,248,244,0.12)",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          fontSize: 13,
           color: "rgba(250,248,244,0.6)",
         }}
       >

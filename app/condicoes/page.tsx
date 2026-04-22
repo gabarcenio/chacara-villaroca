@@ -26,25 +26,25 @@ export default function ConditionsPage() {
       <SiteHeader dark={false} />
 
       {/* ── Hero image with text overlay ── */}
-      <section style={{ position: "relative", margin: "0 48px", height: 340, overflow: "hidden" }}>
+      <section className="relative mx-5 md:mx-10 h-[200px] sm:h-[260px] md:h-[340px] overflow-hidden">
         <img
           src="/photos/mesa-varanda.jpeg"
           alt="Mesa posta na varanda"
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
         />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(12,10,8,0.65) 0%, rgba(12,10,8,0.1) 60%)" }} />
-        <div style={{ position: "absolute", left: 40, bottom: 32, right: 40 }}>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "rgba(250,248,244,0.7)", letterSpacing: "2.5px", textTransform: "uppercase", marginBottom: 18 }}>
+        <div className="absolute left-5 bottom-5 right-5 md:left-10 md:bottom-8 md:right-10">
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "rgba(250,248,244,0.7)", letterSpacing: "2.5px", textTransform: "uppercase", marginBottom: 14 }}>
             Condições
           </div>
-          <h1 style={{ fontFamily: "var(--font-fraunces)", fontSize: 44, fontWeight: 300, lineHeight: 1.04, letterSpacing: "-0.9px", margin: 0, color: "#fff", maxWidth: 460, fontVariationSettings: '"opsz" 144' }}>
+          <h1 style={{ fontFamily: "var(--font-fraunces)", fontSize: "clamp(26px, 5vw, 44px)", fontWeight: 300, lineHeight: 1.04, letterSpacing: "-0.9px", margin: 0, color: "#fff", maxWidth: 460, fontVariationSettings: '"opsz" 144' }}>
             Tudo claro antes da reserva.
           </h1>
         </div>
       </section>
 
       {/* ── Lead paragraph ── */}
-      <section style={{ padding: "56px 48px 32px", maxWidth: 600 }}>
+      <section className="px-5 pt-10 pb-7 md:px-10 md:pt-14 md:pb-8" style={{ maxWidth: 660 }}>
         <p style={{ margin: 0, fontSize: 16, lineHeight: 1.65, color: MUTED2, fontWeight: 300 }}>
           O orçamento é personalizado para cada evento. A reserva é confirmada após aceite,
           contrato e pagamento da entrada de {RENTAL.depositPercent}%.
@@ -52,7 +52,7 @@ export default function ConditionsPage() {
       </section>
 
       {/* ── Three panels ── */}
-      <section style={{ padding: "24px 48px 48px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 40 }}>
+      <section className="px-5 pb-10 md:px-10 md:pb-12 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
         {panels.map((panel) => (
           <div key={panel.title}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 24, paddingBottom: 16, borderBottom: `1px solid ${LINE}` }}>
@@ -75,12 +75,15 @@ export default function ConditionsPage() {
       </section>
 
       {/* ── Payment dark band ── */}
-      <section style={{ margin: "24px 48px 56px", background: INK, color: PAPER, padding: "44px 44px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 32 }}>
+      <section
+        className="mx-5 mb-14 md:mx-10 md:mb-14 p-7 md:p-11 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8"
+        style={{ background: INK, color: PAPER }}
+      >
         <div>
           <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "rgba(250,248,244,0.55)", letterSpacing: "2.5px", textTransform: "uppercase", marginBottom: 18 }}>
             Pagamento
           </div>
-          <h2 style={{ fontFamily: "var(--font-fraunces)", fontSize: 28, fontWeight: 300, lineHeight: 1.04, letterSpacing: "-0.9px", margin: 0, color: PAPER, fontVariationSettings: '"opsz" 144' }}>
+          <h2 style={{ fontFamily: "var(--font-fraunces)", fontSize: "clamp(22px, 4vw, 28px)", fontWeight: 300, lineHeight: 1.04, letterSpacing: "-0.9px", margin: 0, color: PAPER, fontVariationSettings: '"opsz" 144' }}>
             Sinal de {RENTAL.depositPercent}%.
           </h2>
         </div>

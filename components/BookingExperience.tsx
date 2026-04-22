@@ -121,18 +121,10 @@ export function BookingExperience({ hero = true, children }: BookingExperiencePr
 
       {selectedDates.length > 0 ? (
         <div
+          className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 md:px-10 md:py-4"
           style={{
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: 40,
             background: "rgba(12,10,8,0.96)",
             borderTop: "1px solid rgba(250,248,244,0.12)",
-            padding: "16px 48px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
             backdropFilter: "blur(8px)",
             fontFamily: "var(--font-inter)",
           }}
@@ -145,7 +137,7 @@ export function BookingExperience({ hero = true, children }: BookingExperiencePr
               {selectedDates.length} {selectedDates.length === 1 ? "data" : "datas"}
             </span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <button
               onClick={() => setSelectedDates([])}
               style={{ background: "transparent", border: "none", color: "rgba(250,248,244,0.5)", fontSize: 13, fontWeight: 500, cursor: "pointer", padding: "8px 4px", fontFamily: "var(--font-inter)" }}
@@ -160,16 +152,17 @@ export function BookingExperience({ hero = true, children }: BookingExperiencePr
                 color: "#0c0a08",
                 fontSize: 13,
                 fontWeight: 500,
-                padding: "12px 20px",
+                padding: "10px 16px",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
                 fontFamily: "var(--font-inter)",
                 letterSpacing: "0.2px",
+                whiteSpace: "nowrap",
               }}
             >
-              Solicitar orçamento
+              <span className="hidden sm:inline">Solicitar </span>orçamento
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3 7h8M7.5 3.5L11 7l-3.5 3.5" /></svg>
             </button>
           </div>

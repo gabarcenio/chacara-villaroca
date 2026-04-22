@@ -109,14 +109,15 @@ export function Calendar({
   return (
     <section
       id="disponibilidade"
-      style={{ background: INK, padding: "64px 48px 56px", fontFamily: "var(--font-inter)" }}
+      className="px-5 pt-10 pb-10 md:px-10 md:pt-16 md:pb-14"
+      style={{ background: INK, fontFamily: "var(--font-inter)" }}
     >
       {/* ── Hero heading ── */}
       <div style={{ marginBottom: 40 }}>
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "rgba(250,248,244,0.55)", letterSpacing: "2.5px", textTransform: "uppercase", marginBottom: 18 }}>
           Disponibilidade · Escolha sua data
         </div>
-        <h2 style={{ fontFamily: "var(--font-fraunces)", fontSize: 48, fontWeight: 280, lineHeight: 1.04, letterSpacing: "-0.9px", margin: "0 0 20px", color: PAPER, fontVariationSettings: '"opsz" 144' }}>
+        <h2 style={{ fontFamily: "var(--font-fraunces)", fontSize: "clamp(26px, 5vw, 48px)", fontWeight: 280, lineHeight: 1.04, letterSpacing: "-0.9px", margin: "0 0 20px", color: PAPER, fontVariationSettings: '"opsz" 144' }}>
           Veja quando a VillaRoça<br />está livre.
         </h2>
         <p style={{ margin: 0, fontSize: 15, lineHeight: 1.55, color: "rgba(250,248,244,0.65)", maxWidth: 520, fontWeight: 300 }}>
@@ -153,9 +154,18 @@ export function Calendar({
       </div>
 
       {/* ── Calendar grid ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 4, padding: "0 0 24px", opacity: loading ? 0.4 : 1, transition: "opacity 0.2s" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(7,1fr)",
+          gap: 4,
+          padding: "0 0 24px",
+          opacity: loading ? 0.4 : 1,
+          transition: "opacity 0.2s",
+        }}
+      >
         {days.map((day, index) => {
-          if (!day) return <div key={`empty-${index}`} style={{ height: 72 }} />;
+          if (!day) return <div key={`empty-${index}`} className="h-12 md:h-[72px]" />;
 
           const isSelectable = day.state === "available";
           const isSelected = selectedDateKeys.has(day.key);
@@ -173,19 +183,19 @@ export function Calendar({
               disabled={!isSelectable}
               aria-label={`${day.dayNumber}, ${stateLabels[day.state]}`}
               aria-pressed={isSelected}
+              className="h-12 md:h-[72px]"
               style={{
-                height: 72,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: 8,
+                gap: 6,
                 background: isSelected ? YELLOW : "transparent",
                 border: isSelected ? `1px solid ${YELLOW}` : "1px solid transparent",
                 borderRadius: 4,
                 cursor: isSelectable ? "pointer" : "not-allowed",
                 color: numColor,
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: isSelected ? 600 : 400,
                 letterSpacing: "-0.1px",
                 fontFamily: "var(--font-inter)",
@@ -210,7 +220,7 @@ export function Calendar({
       </div>
 
       {/* ── Legend ── */}
-      <div style={{ padding: "20px 0 16px", borderTop: `1px solid ${LINE}`, display: "flex", gap: 28, flexWrap: "wrap" }}>
+      <div style={{ padding: "20px 0 16px", borderTop: `1px solid ${LINE}`, display: "flex", gap: 20, flexWrap: "wrap" }}>
         <LegendItem sym={<Dot bg={YELLOW} />} label="Disponível" />
         <LegendItem sym={<span style={{ width: 7, height: 7, borderRadius: 999, border: "1px solid rgba(250,248,244,0.5)", display: "inline-block" }} />} label="Em análise" />
         <LegendItem sym={<Dot bg="rgba(250,248,244,0.35)" />} label="Reservado" />
@@ -229,7 +239,7 @@ function NavBtn({ onClick, label, children }: { onClick: () => void; label: stri
     <button
       onClick={onClick}
       aria-label={label}
-      style={{ background: "transparent", border: "1px solid rgba(250,248,244,0.2)", width: 36, height: 36, borderRadius: 999, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(250,248,244,0.7)" }}
+      style={{ background: "transparent", border: "1px solid rgba(250,248,244,0.2)", width: 36, height: 36, borderRadius: 999, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(250,248,244,0.7)", flexShrink: 0 }}
     >
       {children}
     </button>

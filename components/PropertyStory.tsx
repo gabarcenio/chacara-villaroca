@@ -3,9 +3,8 @@
 import { useEffect, useCallback, useState } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
-const INK   = "#0c0a08";
-const PAPER = "#faf8f4";
-const LINE  = "rgba(250,248,244,0.12)";
+const INK  = "#0c0a08";
+const LINE = "rgba(250,248,244,0.12)";
 
 const galleryPhotos = [
   { src: "/photos/varanda.jpg",              alt: "Varanda e área externa" },
@@ -63,22 +62,17 @@ export function PropertyStory() {
     <>
       {/* ── Photo grid ── */}
       <section
-        style={{
-          background: INK,
-          padding: "0 48px 24px",
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 16,
-        }}
+        className="px-5 pb-5 md:px-10 md:pb-6 grid grid-cols-2 gap-3 md:gap-4"
+        style={{ background: INK }}
       >
-        {gridPhotos.map((photo, i) => (
+        {gridPhotos.map((photo) => (
           <button
             key={photo.src}
             onClick={() => openGallery(galleryPhotos.findIndex((p) => p.src === photo.src))}
             aria-label={`Abrir foto: ${photo.alt}`}
             style={{ background: "transparent", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}
           >
-            <div style={{ width: "100%", height: 200, overflow: "hidden", position: "relative" }}>
+            <div className="w-full h-[140px] sm:h-[170px] md:h-[200px] overflow-hidden relative">
               <img
                 src={photo.src}
                 alt={photo.alt}
@@ -105,11 +99,8 @@ export function PropertyStory() {
 
       {/* ── Ver todas as fotos link ── */}
       <section
-        style={{
-          background: INK,
-          padding: "0 48px 48px",
-          borderBottom: `1px solid ${LINE}`,
-        }}
+        className="px-5 pb-10 md:px-10 md:pb-12"
+        style={{ background: INK, borderBottom: `1px solid ${LINE}` }}
       >
         <button
           onClick={() => openGallery(0)}
