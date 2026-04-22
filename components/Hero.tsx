@@ -11,10 +11,10 @@ const PAPER = "#faf8f4";
 const MUTED = "rgba(250,248,244,0.55)";
 
 const navItems = [
-  { href: "/",               label: "Início",          mobileHide: true },
+  { href: "/",               label: "Início",          mobileHide: true  },
   { href: "/disponibilidade",label: "Disponibilidade", mobileHide: false },
-  { href: "/condicoes",      label: "Condições",       mobileHide: true },
-  { href: "/espaco",         label: "O Espaço",        mobileHide: true },
+  { href: "/condicoes",      label: "Condições",       mobileHide: false },
+  { href: "/espaco",         label: "O Espaço",        mobileHide: true  },
   { href: "/contato",        label: "Contato",         mobileHide: false },
 ];
 
@@ -45,18 +45,16 @@ export function Hero({ onScrollToCalendar }: HeroProps) {
           VillaRoça
         </Link>
 
-        <nav className="flex items-center gap-5 md:gap-8">
+        <nav className="flex items-center gap-3 md:gap-8">
           {navItems.map((item) => {
             const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={item.mobileHide ? "hidden md:inline-block" : ""}
+                className={`${item.mobileHide ? "hidden md:inline-block" : ""} text-[10px] md:text-[12px] tracking-[0.5px] md:tracking-[1.2px]`}
                 style={{
-                  fontSize: 12,
                   fontWeight: 500,
-                  letterSpacing: "1.2px",
                   textTransform: "uppercase",
                   color: isActive ? PAPER : MUTED,
                   textDecoration: "none",
