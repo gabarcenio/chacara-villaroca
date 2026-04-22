@@ -2,7 +2,7 @@
 
 import { getDaysInMonth } from "date-fns";
 import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import type { ReactNode } from "react";
 import { VENUE } from "@/lib/constants";
 import {
   formatVenueMonthLabel,
@@ -12,6 +12,12 @@ import {
   nowInVenueTimeZone,
   toVenueDateKey,
 } from "@/lib/date";
+
+// ── Design tokens ──────────────────────────────────────────────────────────────
+const INK    = "#0c0a08";
+const PAPER  = "#faf8f4";
+const YELLOW = "#ffd23f";
+const LINE   = "rgba(250,248,244,0.12)";
 
 type CalendarState = "available" | "pending" | "confirmed" | "blocked";
 
@@ -32,6 +38,13 @@ type CalendarProps = {
 };
 
 const weekDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+const stateLabels: Record<CalendarState, string> = {
+  available: "disponível",
+  pending: "em análise",
+  confirmed: "reservado",
+  blocked: "indisponível",
+};
 
 function generateCalendarDays(
   year: number,
@@ -75,7 +88,13 @@ export function Calendar({
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
 
-  const days = generateCalendarDays(currentYear, currentMonth, pendingDateKeys, confirmedDateKeys, blockedDateKeys);
+  const days = generateCalendarDays(
+    currentYear,
+    currentMonth,
+    pendingDateKeys,
+    confirmedDateKeys,
+    blockedDateKeys,
+  );
 
   const handlePrevMonth = () => {
     if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(currentYear - 1); }
@@ -88,106 +107,144 @@ export function Calendar({
   };
 
   return (
-    <section className="w-full bg-primary px-5 py-16 md:py-24" id="disponibilidade">
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-8 text-center">
-          <p className="mb-2 text-accent" style={{ fontFamily: "var(--font-caveat)", fontSize: "1.5rem" }}>
-            escolha sua data
-          </p>
-          <h2 className="mb-4 text-3xl text-white md:text-4xl">Disponibilidade</h2>
-          <p className="mx-auto max-w-2xl text-white/72">
-            Selecione uma ou mais datas disponíveis para solicitar um orçamento personalizado.
-          </p>
+    <section
+      id="disponibilidade"
+      style={{ background: INK, padding: "64px 48px 56px", fontFamily: "var(--font-inter)" }}
+    >
+      {/* ── Hero heading ── */}
+      <div style={{ marginBottom: 40 }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "rgba(250,248,244,0.55)", letterSpacing: "2.5px", textTransform: "uppercase", marginBottom: 18 }}>
+          Disponibilidade · Escolha sua data
         </div>
-
-        <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4 shadow-lg md:p-8">
-          <div className="mb-6 flex items-center justify-between">
-            <button
-              onClick={handlePrevMonth}
-              className="rounded-lg p-2 text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
-              aria-label="Mês anterior"
-            >
-              <ChevronLeft size={22} aria-hidden="true" />
-            </button>
-            <h3 className="text-xl capitalize text-white">{formatVenueMonthLabel(currentYear, currentMonth)}</h3>
-            <button
-              onClick={handleNextMonth}
-              className="rounded-lg p-2 text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
-              aria-label="Próximo mês"
-            >
-              <ChevronRight size={22} aria-hidden="true" />
-            </button>
-          </div>
-
-          <div className="mb-3 grid grid-cols-7 gap-1.5 md:gap-2">
-            {weekDays.map((day) => (
-              <div key={day} className="py-2 text-center text-xs text-white/58 md:text-sm">{day}</div>
-            ))}
-          </div>
-
-          <div className={`grid grid-cols-7 gap-1.5 transition-opacity md:gap-2 ${loading ? "opacity-40" : ""}`}>
-            {days.map((day, index) => {
-              if (!day) return <div key={`empty-${index}`} className="aspect-square" />;
-
-              const isSelectable = day.state === "available";
-              const isSelected = selectedDateKeys.has(day.key);
-
-              return (
-                <button
-                  key={day.key}
-                  onClick={() => isSelectable && onToggleDate(day.date)}
-                  disabled={!isSelectable}
-                  aria-label={`${day.dayNumber}, ${stateLabels[day.state]}`}
-                  aria-pressed={isSelected}
-                  className={[
-                    "relative flex aspect-square items-center justify-center rounded-lg text-sm transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent",
-                    isSelected ? "bg-accent font-semibold text-primary" : "text-white",
-                    day.state === "available" && !isSelected ? "bg-white/[0.07] hover:bg-accent/20" : "",
-                    day.state === "pending" ? "cursor-not-allowed border border-accent/60 text-white/60" : "",
-                    day.state === "confirmed" ? "cursor-not-allowed bg-white/[0.02] text-white/35 line-through" : "",
-                    day.state === "blocked" ? "cursor-not-allowed text-white/25" : "",
-                  ].join(" ")}
-                >
-                  {day.dayNumber}
-                  {day.state === "available" && !isSelected ? (
-                    <span className="absolute bottom-1.5 h-1.5 w-1.5 rounded-full bg-accent" />
-                  ) : null}
-                  {day.state === "pending" ? (
-                    <span className="absolute bottom-1.5 h-1.5 w-1.5 rounded-full border border-accent/80" />
-                  ) : null}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="mt-6 flex flex-wrap gap-4 border-t border-white/15 pt-6 text-sm text-white/70">
-            <LegendDot className="bg-accent" label="Disponível" />
-            <LegendDot className="border border-accent/60" label="Em análise" />
-            <LegendDot className="bg-white/20" label="Reservado" />
-            <LegendDot className="bg-white/10" label="Bloqueado" />
-          </div>
-
-          <p className="mt-5 text-sm text-white/55">
-            Capacidade: {VENUE.capacity.total} convidados · Hospedagem: {VENUE.capacity.beds} camas · Preços sob orçamento.
-          </p>
-        </div>
+        <h2 style={{ fontFamily: "var(--font-fraunces)", fontSize: 48, fontWeight: 280, lineHeight: 1.04, letterSpacing: "-0.9px", margin: "0 0 20px", color: PAPER, fontVariationSettings: '"opsz" 144' }}>
+          Veja quando a VillaRoça<br />está livre.
+        </h2>
+        <p style={{ margin: 0, fontSize: 15, lineHeight: 1.55, color: "rgba(250,248,244,0.65)", maxWidth: 520, fontWeight: 300 }}>
+          Selecione uma ou mais datas disponíveis para solicitar um orçamento
+          personalizado. Respondemos em minutos durante o horário de atendimento.
+        </p>
       </div>
+
+      {/* ── Month navigation ── */}
+      <div style={{ padding: "24px 0", borderTop: `1px solid ${LINE}`, borderBottom: `1px solid ${LINE}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <NavBtn onClick={handlePrevMonth} label="Mês anterior">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M9 2L4 7l5 5" /></svg>
+        </NavBtn>
+
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "rgba(250,248,244,0.5)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 6 }}>Mês</div>
+          <div style={{ fontFamily: "var(--font-fraunces)", fontSize: 30, fontWeight: 320, letterSpacing: "-0.6px", color: PAPER, textTransform: "capitalize" }}>
+            {formatVenueMonthLabel(currentYear, currentMonth)}
+          </div>
+        </div>
+
+        <NavBtn onClick={handleNextMonth} label="Próximo mês">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M5 2l5 5-5 5" /></svg>
+        </NavBtn>
+      </div>
+
+      {/* ── Weekday labels ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 4, padding: "18px 0 6px" }}>
+        {weekDays.map((d) => (
+          <div key={d} style={{ textAlign: "center", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "1.8px", textTransform: "uppercase", color: "rgba(250,248,244,0.5)" }}>
+            {d}
+          </div>
+        ))}
+      </div>
+
+      {/* ── Calendar grid ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 4, padding: "0 0 24px", opacity: loading ? 0.4 : 1, transition: "opacity 0.2s" }}>
+        {days.map((day, index) => {
+          if (!day) return <div key={`empty-${index}`} style={{ height: 72 }} />;
+
+          const isSelectable = day.state === "available";
+          const isSelected = selectedDateKeys.has(day.key);
+
+          const numColor = isSelected ? INK
+            : day.state === "available" ? PAPER
+            : day.state === "pending" ? "rgba(250,248,244,0.8)"
+            : day.state === "confirmed" ? "rgba(250,248,244,0.35)"
+            : "rgba(250,248,244,0.22)";
+
+          return (
+            <button
+              key={day.key}
+              onClick={() => isSelectable && onToggleDate(day.date)}
+              disabled={!isSelectable}
+              aria-label={`${day.dayNumber}, ${stateLabels[day.state]}`}
+              aria-pressed={isSelected}
+              style={{
+                height: 72,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                background: isSelected ? YELLOW : "transparent",
+                border: isSelected ? `1px solid ${YELLOW}` : "1px solid transparent",
+                borderRadius: 4,
+                cursor: isSelectable ? "pointer" : "not-allowed",
+                color: numColor,
+                fontSize: 15,
+                fontWeight: isSelected ? 600 : 400,
+                letterSpacing: "-0.1px",
+                fontFamily: "var(--font-inter)",
+                textDecoration: day.state === "blocked" ? "line-through" : "none",
+                textDecorationColor: "rgba(250,248,244,0.25)",
+                transition: "background 0.15s, border-color 0.15s",
+              }}
+            >
+              <span>{day.dayNumber}</span>
+              {day.state === "available" && !isSelected && (
+                <span style={{ width: 4, height: 4, borderRadius: 999, background: YELLOW, display: "block" }} />
+              )}
+              {day.state === "pending" && (
+                <span style={{ width: 5, height: 5, borderRadius: 999, border: "1px solid rgba(250,248,244,0.5)", display: "block" }} />
+              )}
+              {day.state === "confirmed" && (
+                <span style={{ width: 4, height: 4, borderRadius: 999, background: "rgba(250,248,244,0.35)", display: "block" }} />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── Legend ── */}
+      <div style={{ padding: "20px 0 16px", borderTop: `1px solid ${LINE}`, display: "flex", gap: 28, flexWrap: "wrap" }}>
+        <LegendItem sym={<Dot bg={YELLOW} />} label="Disponível" />
+        <LegendItem sym={<span style={{ width: 7, height: 7, borderRadius: 999, border: "1px solid rgba(250,248,244,0.5)", display: "inline-block" }} />} label="Em análise" />
+        <LegendItem sym={<Dot bg="rgba(250,248,244,0.35)" />} label="Reservado" />
+        <LegendItem sym={<span style={{ width: 14, height: 1, background: "rgba(250,248,244,0.25)", display: "inline-block", marginBottom: 1 }} />} label="Bloqueado" />
+      </div>
+
+      <p style={{ fontSize: 12, color: "rgba(250,248,244,0.4)", margin: 0, fontFamily: "var(--font-mono)", letterSpacing: "0.5px" }}>
+        Capacidade: {VENUE.capacity.total} convidados · Hospedagem: {VENUE.capacity.beds} camas · Preços sob orçamento
+      </p>
     </section>
   );
 }
 
-function LegendDot({ className, label }: { className: string; label: string }) {
+function NavBtn({ onClick, label, children }: { onClick: () => void; label: string; children: ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-2">
-      <span className={`h-2 w-2 rounded-full ${className}`} />
-      {label}
-    </span>
+    <button
+      onClick={onClick}
+      aria-label={label}
+      style={{ background: "transparent", border: "1px solid rgba(250,248,244,0.2)", width: 36, height: 36, borderRadius: 999, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(250,248,244,0.7)" }}
+    >
+      {children}
+    </button>
   );
 }
 
-const stateLabels: Record<CalendarState, string> = {
-  available: "disponível",
-  pending: "em análise",
-  confirmed: "reservado",
-  blocked: "indisponível",
-};
+function Dot({ bg }: { bg: string }) {
+  return <span style={{ width: 6, height: 6, borderRadius: 999, background: bg, display: "inline-block" }} />;
+}
+
+function LegendItem({ sym, label }: { sym: ReactNode; label: string }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12, color: "rgba(250,248,244,0.7)" }}>
+      {sym}
+      <span>{label}</span>
+    </span>
+  );
+}

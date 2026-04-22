@@ -120,23 +120,57 @@ export function BookingExperience({ hero = true, children }: BookingExperiencePr
       </div>
 
       {selectedDates.length > 0 ? (
-        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-primary px-5 py-4 shadow-2xl md:flex md:items-center md:justify-between">
-          <p className="mb-3 text-white md:mb-0">
-            <span className="font-semibold text-accent">{selectedDates.length}</span>{" "}
-            {selectedDates.length === 1 ? "data selecionada" : "datas selecionadas"}
-          </p>
-          <div className="flex gap-3">
+        <div
+          style={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 40,
+            background: "rgba(12,10,8,0.96)",
+            borderTop: "1px solid rgba(250,248,244,0.12)",
+            padding: "16px 48px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            backdropFilter: "blur(8px)",
+            fontFamily: "var(--font-inter)",
+          }}
+        >
+          <div>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "rgba(250,248,244,0.5)", letterSpacing: "1.8px", textTransform: "uppercase", display: "block", marginBottom: 4 }}>
+              Selecionado
+            </span>
+            <span style={{ fontFamily: "var(--font-fraunces)", fontSize: 20, fontWeight: 360, letterSpacing: "-0.4px", color: "#faf8f4" }}>
+              {selectedDates.length} {selectedDates.length === 1 ? "data" : "datas"}
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <button
               onClick={() => setSelectedDates([])}
-              className="rounded-lg px-4 py-2.5 text-sm text-white/60 transition-colors hover:text-white"
+              style={{ background: "transparent", border: "none", color: "rgba(250,248,244,0.5)", fontSize: 13, fontWeight: 500, cursor: "pointer", padding: "8px 4px", fontFamily: "var(--font-inter)" }}
             >
               Limpar
             </button>
             <button
               onClick={() => setShowForm(true)}
-              className="rounded-lg bg-accent px-6 py-2.5 text-sm font-semibold text-primary transition-all hover:bg-accent/90"
+              style={{
+                background: "#faf8f4",
+                border: "none",
+                color: "#0c0a08",
+                fontSize: 13,
+                fontWeight: 500,
+                padding: "12px 20px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontFamily: "var(--font-inter)",
+                letterSpacing: "0.2px",
+              }}
             >
               Solicitar orçamento
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3 7h8M7.5 3.5L11 7l-3.5 3.5" /></svg>
             </button>
           </div>
         </div>

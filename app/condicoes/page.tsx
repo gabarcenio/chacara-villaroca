@@ -1,6 +1,12 @@
 import { SiteHeader } from "@/components/SiteHeader";
 import { RENTAL, VENUE } from "@/lib/constants";
 
+const PAPER  = "#faf8f4";
+const INK    = "#0c0a08";
+const MUTED  = "#8a8578";
+const MUTED2 = "#5e5a50";
+const LINE   = "#e7e2d7";
+
 const included = [
   "Uso do espaço contratado para o evento informado",
   `Capacidade máxima de ${VENUE.capacity.total} convidados`,
@@ -8,48 +14,85 @@ const included = [
   "Horário padrão das 08:00 às 18:00",
 ];
 
+const panels = [
+  { mark: "+", title: "Incluído",       items: included },
+  { mark: "–", title: "Não incluído",   items: RENTAL.notIncluded },
+  { mark: "×", title: "Não permitido",  items: RENTAL.forbidden },
+];
+
 export default function ConditionsPage() {
   return (
-    <>
-      <SiteHeader />
-      <main className="bg-secondary px-5 py-12 md:py-20">
-        <section className="mx-auto max-w-4xl">
-          <p className="mb-2 text-primary" style={{ fontFamily: "var(--font-caveat)", fontSize: "1.5rem" }}>
-            condições
-          </p>
-          <h1 className="mb-5 text-4xl text-primary md:text-5xl">Tudo claro antes da reserva.</h1>
-          <p className="mb-10 text-lg leading-relaxed text-muted-foreground">
-            O orçamento é personalizado para cada evento. A reserva é confirmada após aceite, contrato e pagamento da entrada de {RENTAL.depositPercent}%.
-          </p>
+    <div style={{ background: PAPER, minHeight: "100vh", fontFamily: "var(--font-inter)", color: INK }}>
+      <SiteHeader dark={false} />
 
-          <div className="grid gap-4 md:grid-cols-3">
-            <RuleList title="Incluído" items={included} />
-            <RuleList title="Não incluído" items={RENTAL.notIncluded} />
-            <RuleList title="Não permitido" items={RENTAL.forbidden} />
+      {/* ── Hero image with text overlay ── */}
+      <section style={{ position: "relative", margin: "0 48px", height: 340, overflow: "hidden" }}>
+        <img
+          src="/photos/mesa-varanda.jpeg"
+          alt="Mesa posta na varanda"
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+        />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(12,10,8,0.65) 0%, rgba(12,10,8,0.1) 60%)" }} />
+        <div style={{ position: "absolute", left: 40, bottom: 32, right: 40 }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "rgba(250,248,244,0.7)", letterSpacing: "2.5px", textTransform: "uppercase", marginBottom: 18 }}>
+            Condições
           </div>
+          <h1 style={{ fontFamily: "var(--font-fraunces)", fontSize: 44, fontWeight: 300, lineHeight: 1.04, letterSpacing: "-0.9px", margin: 0, color: "#fff", maxWidth: 460, fontVariationSettings: '"opsz" 144' }}>
+            Tudo claro antes da reserva.
+          </h1>
+        </div>
+      </section>
 
-          <div className="mt-8 rounded-lg bg-white p-6">
-            <h2 className="mb-3 text-xl text-primary">Pagamentos e cancelamento</h2>
-            <p className="leading-relaxed text-muted-foreground">
-              O sinal corresponde a {RENTAL.depositPercent}% do valor aprovado. O saldo vence {RENTAL.balanceDueDaysBeforeEvent} dias antes do evento.
-              Em caso de cancelamento, o percentual previsto de retenção é de {RENTAL.cancellationForfeitPercent}%.
-            </p>
+      {/* ── Lead paragraph ── */}
+      <section style={{ padding: "56px 48px 32px", maxWidth: 600 }}>
+        <p style={{ margin: 0, fontSize: 16, lineHeight: 1.65, color: MUTED2, fontWeight: 300 }}>
+          O orçamento é personalizado para cada evento. A reserva é confirmada após aceite,
+          contrato e pagamento da entrada de {RENTAL.depositPercent}%.
+        </p>
+      </section>
+
+      {/* ── Three panels ── */}
+      <section style={{ padding: "24px 48px 48px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 40 }}>
+        {panels.map((panel) => (
+          <div key={panel.title}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 24, paddingBottom: 16, borderBottom: `1px solid ${LINE}` }}>
+              <span style={{ fontFamily: "var(--font-fraunces)", fontSize: 22, fontWeight: 300, color: MUTED }}>
+                {panel.mark}
+              </span>
+              <span style={{ fontFamily: "var(--font-fraunces)", fontSize: 22, fontWeight: 360, letterSpacing: "-0.3px", color: INK }}>
+                {panel.title}
+              </span>
+            </div>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+              {panel.items.map((item) => (
+                <li key={item} style={{ fontSize: 13, lineHeight: 1.55, color: MUTED2, padding: "8px 0" }}>
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
-        </section>
-      </main>
-    </>
-  );
-}
-
-function RuleList({ title, items }: { title: string; items: readonly string[] }) {
-  return (
-    <section className="rounded-lg bg-white p-6">
-      <h2 className="mb-4 text-xl text-primary">{title}</h2>
-      <ul className="space-y-3 text-muted-foreground">
-        {items.map((item) => (
-          <li key={item}>- {item}</li>
         ))}
-      </ul>
-    </section>
+      </section>
+
+      {/* ── Payment dark band ── */}
+      <section style={{ margin: "24px 48px 56px", background: INK, color: PAPER, padding: "44px 44px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 32 }}>
+        <div>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "rgba(250,248,244,0.55)", letterSpacing: "2.5px", textTransform: "uppercase", marginBottom: 18 }}>
+            Pagamento
+          </div>
+          <h2 style={{ fontFamily: "var(--font-fraunces)", fontSize: 28, fontWeight: 300, lineHeight: 1.04, letterSpacing: "-0.9px", margin: 0, color: PAPER, fontVariationSettings: '"opsz" 144' }}>
+            Sinal de {RENTAL.depositPercent}%.
+          </h2>
+        </div>
+        <p style={{ fontSize: 13.5, lineHeight: 1.65, color: "rgba(250,248,244,0.7)", fontWeight: 300, margin: 0 }}>
+          O sinal corresponde a {RENTAL.depositPercent}% do valor aprovado. O saldo vence{" "}
+          {RENTAL.balanceDueDaysBeforeEvent} dias antes do evento.
+        </p>
+        <p style={{ fontSize: 13.5, lineHeight: 1.65, color: "rgba(250,248,244,0.7)", fontWeight: 300, margin: 0 }}>
+          Em caso de cancelamento, o percentual previsto de retenção é de{" "}
+          {RENTAL.cancellationForfeitPercent}%.
+        </p>
+      </section>
+    </div>
   );
 }
